@@ -19,11 +19,13 @@ module RuboCop
       #     "#{first_name} #{last_name}"
       #   end
       class ModelMethodLength < MethodLengthBase
-        MSG = "[Harness] `%<method>s` is %<length>d lines (max %<max>d). " \
-              "Models should focus on persistence. Extract business logic " \
-              "into a service object in app/services/."
+        MSG = '[Harness] `%<method>s` is %<length>d lines (max %<max>d). ' \
+              'Models should focus on persistence. Extract business logic ' \
+              'into a service object in app/services/.'
 
         def on_def(node)
+          return if allowed_method?(node.method_name)
+
           body = node.body
           return unless body
 

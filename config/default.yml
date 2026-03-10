@@ -9,6 +9,7 @@ Harness/ControllerMethodLength:
   Severity: warning
   VersionAdded: '0.1'
   Max: 10
+  AllowedMethods: []
   Include:
     - '**/app/controllers/**/*.rb'
   Exclude:
@@ -22,6 +23,7 @@ Harness/ModelMethodLength:
   Severity: warning
   VersionAdded: '0.1'
   Max: 7
+  AllowedMethods: []
   Include:
     - '**/app/models/**/*.rb'
   Exclude:

@@ -20,11 +20,13 @@ module RuboCop
       #     # short delegation
       #   end
       class ControllerMethodLength < MethodLengthBase
-        MSG = "[Harness] `%<method>s` is %<length>d lines (max %<max>d). " \
-              "Extract logic into a service object in app/services/. " \
-              "Use Pattern A (call) or Pattern B (save)."
+        MSG = '[Harness] `%<method>s` is %<length>d lines (max %<max>d). ' \
+              'Extract logic into a service object in app/services/. ' \
+              'Use Pattern A (call) or Pattern B (save).'
 
         def on_def(node)
+          return if allowed_method?(node.method_name)
+
           body = node.body
           return unless body
 
