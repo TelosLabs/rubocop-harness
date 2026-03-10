@@ -1,0 +1,70 @@
+Harness:
+  Enabled: true
+
+Harness/ControllerMethodLength:
+  Description: >-
+    Enforces a maximum method length in controllers. Extract long methods
+    into service objects.
+  Enabled: true
+  Severity: warning
+  VersionAdded: '0.1'
+  Max: 10
+  Include:
+    - '**/app/controllers/**/*.rb'
+  Exclude:
+    - '**/app/controllers/concerns/**/*.rb'
+
+Harness/ModelMethodLength:
+  Description: >-
+    Enforces a maximum method length in models. Models should focus on
+    persistence -- extract business logic into service objects.
+  Enabled: true
+  Severity: warning
+  VersionAdded: '0.1'
+  Max: 7
+  Include:
+    - '**/app/models/**/*.rb'
+  Exclude:
+    - '**/app/models/concerns/**/*.rb'
+
+Harness/RestfulActions:
+  Description: >-
+    Controllers should only define the 7 RESTful actions. Extract
+    non-standard actions into new controllers.
+  Enabled: true
+  Severity: warning
+  VersionAdded: '0.1'
+  AllowedMethods: []
+  Include:
+    - '**/app/controllers/**/*.rb'
+  Exclude:
+    - '**/app/controllers/concerns/**/*.rb'
+
+Harness/ServiceInterface:
+  Description: >-
+    Service objects must define a `call` or `save` instance method.
+  Enabled: true
+  Severity: warning
+  VersionAdded: '0.1'
+  RequiredMethods:
+    - call
+    - save
+  Include:
+    - '**/app/services/**/*.rb'
+  Exclude:
+    - '**/app/services/application_service.rb'
+
+Harness/NoQueriesInControllers:
+  Description: >-
+    Controllers should not contain ActiveRecord query methods. Move
+    queries to service objects or model scopes.
+  Enabled: true
+  Severity: warning
+  VersionAdded: '0.1'
+  AllowedMethods:
+    - find
+    - find_by
+  Include:
+    - '**/app/controllers/**/*.rb'
+  Exclude:
+    - '**/app/controllers/concerns/**/*.rb'
