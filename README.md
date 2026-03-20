@@ -49,7 +49,7 @@ plugins:
 | `Harness/ModelMethodLength` | Max: 7 | Models should focus on persistence. Extract business logic into services. |
 | `Harness/RestfulActions` | Enabled | Controllers should only define the 7 RESTful actions (index, show, new, create, edit, update, destroy). |
 | `Harness/ServiceInterface` | Enabled | Service objects must define a `call` or `save` instance method. |
-| `Harness/NoQueriesInControllers` | Enabled | No ActiveRecord query methods in controllers. `find` and `find_by` allowed by default. |
+| `Harness/NoQueriesInControllers` | Enabled | No ActiveRecord query methods in controllers. Move to service objects or model scopes. `find` and `find_by` allowed by default. |
 
 All cops are enabled by default with `warning` severity.
 
@@ -163,9 +163,14 @@ def index
   @users = User.where(active: true).order(:name)
 end
 
-# good
+# good – use a service object
 def index
   @users = ListUsersService.new(filters: params[:filters]).call
+end
+
+# good – use model scopes
+def index
+  @users = User.active.ordered_by_name
 end
 ```
 
@@ -179,7 +184,7 @@ These cops enforce **architectural boundaries**, not style preferences. They fil
 - rubocop-rails enforces action **ordering** (`Rails/ActionOrder`). rubocop-harness enforces that only RESTful actions **exist**.
 - Neither enforces service object interfaces, query-free controllers, or layer-specific method size limits.
 
-The cop messages are deliberately written for AI agents to parse and act on. When an agent sees `[Harness] ... Extract logic into a service object in app/services/. Use Pattern A (call) or Pattern B (save).`, it knows exactly what to do without additional context.
+The cop messages are deliberately written for AI agents to parse and act on. When an agent sees `[Harness] ... Move query logic to a service object in app/services/ or a scope in the model.`, it knows exactly what to do without additional context.
 
 ## Development
 
