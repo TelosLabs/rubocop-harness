@@ -5,9 +5,8 @@ module RuboCop
     module Harness
       # Controllers should not contain ActiveRecord query methods.
       #
-      # Move query logic to service objects in `app/services/` or scopes
-      # in the model. This keeps controllers thin and focused on request
-      # handling.
+      # Move query logic to model scopes or query objects. This keeps
+      # controllers thin and focused on request handling.
       #
       # @example
       #   # bad
@@ -15,9 +14,9 @@ module RuboCop
       #     @users = User.where(active: true).order(:name)
       #   end
       #
-      #   # good
+      #   # good - model scope
       #   def index
-      #     @users = ListUsersService.new(filters: params[:filters]).call
+      #     @users = User.active.ordered_by_name
       #   end
       class NoQueriesInControllers < Base
         include AllowedMethods
@@ -33,8 +32,7 @@ module RuboCop
         RESTRICT_ON_SEND = QUERY_METHODS
 
         MSG = "[Harness] `%<method>s` query in controller. Move query " \
-              "logic to a service object in app/services/ or a scope " \
-              "in the model."
+              "logic to a model scope or query object."
 
         def on_send(node)
           return if allowed_method?(node.method_name)

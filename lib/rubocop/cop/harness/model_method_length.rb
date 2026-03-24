@@ -5,23 +5,23 @@ module RuboCop
     module Harness
       # Enforces a maximum method length in models.
       #
-      # Models should focus on persistence, associations, and data integrity.
-      # Extract business logic into service objects in `app/services/`.
+      # Models own domain logic (validations, calculations, state transitions)
+      # but methods should be small and focused. Decompose long methods into
+      # smaller private methods, concerns, or value objects.
       #
       # @example
       #   # bad
       #   def calculate_score
-      #     # 8+ lines of business logic
+      #     # 8+ lines of logic
       #   end
       #
-      #   # good - simple accessor
-      #   def full_name
-      #     "#{first_name} #{last_name}"
+      #   # good - decomposed into smaller methods
+      #   def calculate_score
+      #     base_score + bonus_score - penalties
       #   end
       class ModelMethodLength < MethodLengthBase
         MSG = '[Harness] `%<method>s` is %<length>d lines (max %<max>d). ' \
-              'Models should focus on persistence. Extract business logic ' \
-              'into a service object in app/services/.'
+              'Decompose into smaller methods, concerns, or value objects.'
 
         def on_def(node)
           return if allowed_method?(node.method_name)

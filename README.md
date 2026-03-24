@@ -14,7 +14,7 @@ Method has too many lines. [15/10]
 
 # rubocop-harness
 [Harness] `create` is 15 lines (max 10). Extract logic into a service
-object in app/services/. Use Pattern A (call) or Pattern B (save).
+object in app/services/.
 ```
 
 Every offense message includes:
@@ -46,10 +46,10 @@ plugins:
 | Cop | Default | Description |
 |-----|---------|-------------|
 | `Harness/ControllerMethodLength` | Max: 10 | Controllers should be thin. Extract long methods into service objects. |
-| `Harness/ModelMethodLength` | Max: 7 | Models should focus on persistence. Extract business logic into services. |
+| `Harness/ModelMethodLength` | Max: 7 | Long model methods should be decomposed into smaller methods, concerns, or value objects. |
 | `Harness/RestfulActions` | Enabled | Controllers should only define the 7 RESTful actions (index, show, new, create, edit, update, destroy). |
 | `Harness/ServiceInterface` | Enabled | Service objects must define a `call` or `save` instance method. |
-| `Harness/NoQueriesInControllers` | Enabled | No ActiveRecord query methods in controllers. Move to service objects or model scopes. `find` and `find_by` allowed by default. |
+| `Harness/NoQueriesInControllers` | Enabled | No ActiveRecord query methods in controllers. Move to model scopes or query objects. `find` and `find_by` allowed by default. |
 
 All cops are enabled by default with `warning` severity.
 
@@ -105,7 +105,7 @@ end
 
 ### Harness/ModelMethodLength
 
-Enforces a maximum method length in `app/models/`. Default max is 7 (stricter than controllers because models should focus on persistence).
+Enforces a maximum method length in `app/models/`. Default max is 7 (stricter than controllers because model methods should be small and focused). Models own domain logic, but long methods should be decomposed into smaller private methods, concerns, or value objects.
 
 ### Harness/RestfulActions
 
@@ -163,11 +163,6 @@ def index
   @users = User.where(active: true).order(:name)
 end
 
-# good – use a service object
-def index
-  @users = ListUsersService.new(filters: params[:filters]).call
-end
-
 # good – use model scopes
 def index
   @users = User.active.ordered_by_name
@@ -184,7 +179,7 @@ These cops enforce **architectural boundaries**, not style preferences. They fil
 - rubocop-rails enforces action **ordering** (`Rails/ActionOrder`). rubocop-harness enforces that only RESTful actions **exist**.
 - Neither enforces service object interfaces, query-free controllers, or layer-specific method size limits.
 
-The cop messages are deliberately written for AI agents to parse and act on. When an agent sees `[Harness] ... Move query logic to a service object in app/services/ or a scope in the model.`, it knows exactly what to do without additional context.
+The cop messages are deliberately written for AI agents to parse and act on. When an agent sees `[Harness] ... Move query logic to a model scope or query object.`, it knows exactly what to do without additional context.
 
 ## Development
 
