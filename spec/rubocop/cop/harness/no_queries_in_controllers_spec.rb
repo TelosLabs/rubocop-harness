@@ -19,7 +19,7 @@ RSpec.describe RuboCop::Cop::Harness::NoQueriesInControllers, :config do
       expect_offense(<<~RUBY, source_file)
         def index
           @users = User.where(active: true)
-                        ^^^^^ [Harness] `where` query in controller. Move query logic to a service object in app/services/ or a scope in the model.
+                        ^^^^^ [Harness] `where` query in controller. Move query logic to a model scope or query object.
         end
       RUBY
     end
@@ -28,7 +28,7 @@ RSpec.describe RuboCop::Cop::Harness::NoQueriesInControllers, :config do
       expect_offense(<<~RUBY, source_file)
         def index
           @users = User.order(:name)
-                        ^^^^^ [Harness] `order` query in controller. Move query logic to a service object in app/services/ or a scope in the model.
+                        ^^^^^ [Harness] `order` query in controller. Move query logic to a model scope or query object.
         end
       RUBY
     end
@@ -37,7 +37,7 @@ RSpec.describe RuboCop::Cop::Harness::NoQueriesInControllers, :config do
       expect_offense(<<~RUBY, source_file)
         def index
           @users = User.joins(:posts)
-                        ^^^^^ [Harness] `joins` query in controller. Move query logic to a service object in app/services/ or a scope in the model.
+                        ^^^^^ [Harness] `joins` query in controller. Move query logic to a model scope or query object.
         end
       RUBY
     end
@@ -46,7 +46,7 @@ RSpec.describe RuboCop::Cop::Harness::NoQueriesInControllers, :config do
       expect_offense(<<~RUBY, source_file)
         def index
           @users = User.includes(:posts)
-                        ^^^^^^^^ [Harness] `includes` query in controller. Move query logic to a service object in app/services/ or a scope in the model.
+                        ^^^^^^^^ [Harness] `includes` query in controller. Move query logic to a model scope or query object.
         end
       RUBY
     end
@@ -55,7 +55,7 @@ RSpec.describe RuboCop::Cop::Harness::NoQueriesInControllers, :config do
       expect_offense(<<~RUBY, source_file)
         def destroy
           User.destroy_all
-               ^^^^^^^^^^^ [Harness] `destroy_all` query in controller. Move query logic to a service object in app/services/ or a scope in the model.
+               ^^^^^^^^^^^ [Harness] `destroy_all` query in controller. Move query logic to a model scope or query object.
         end
       RUBY
     end
@@ -64,7 +64,7 @@ RSpec.describe RuboCop::Cop::Harness::NoQueriesInControllers, :config do
       expect_offense(<<~RUBY, source_file)
         def index
           @names = User.pluck(:name)
-                        ^^^^^ [Harness] `pluck` query in controller. Move query logic to a service object in app/services/ or a scope in the model.
+                        ^^^^^ [Harness] `pluck` query in controller. Move query logic to a model scope or query object.
         end
       RUBY
     end
@@ -147,7 +147,7 @@ RSpec.describe RuboCop::Cop::Harness::NoQueriesInControllers, :config do
       expect_offense(<<~RUBY, source_file)
         def show
           @user = User.find(params[:id])
-                       ^^^^ [Harness] `find` query in controller. Move query logic to a service object in app/services/ or a scope in the model.
+                       ^^^^ [Harness] `find` query in controller. Move query logic to a model scope or query object.
         end
       RUBY
     end

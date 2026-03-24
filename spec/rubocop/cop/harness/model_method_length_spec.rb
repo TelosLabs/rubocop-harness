@@ -18,7 +18,7 @@ RSpec.describe RuboCop::Cop::Harness::ModelMethodLength, :config do
     it "registers an offense for a method exceeding the max" do
       expect_offense(<<~RUBY, source_file)
         def calculate_score
-        ^^^^^^^^^^^^^^^^^^^ [Harness] `calculate_score` is 8 lines (max 7). Models should focus on persistence. Extract business logic into a service object in app/services/.
+        ^^^^^^^^^^^^^^^^^^^ [Harness] `calculate_score` is 8 lines (max 7). Decompose into smaller methods, concerns, or value objects.
           a = 1
           b = 2
           c = 3

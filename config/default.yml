@@ -17,8 +17,8 @@ Harness/ControllerMethodLength:
 
 Harness/ModelMethodLength:
   Description: >-
-    Enforces a maximum method length in models. Models should focus on
-    persistence -- extract business logic into service objects.
+    Enforces a maximum method length in models. Long methods should be
+    decomposed into smaller methods, concerns, or value objects.
   Enabled: true
   Severity: warning
   VersionAdded: '0.1'
