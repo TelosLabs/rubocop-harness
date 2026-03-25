@@ -46,7 +46,7 @@ plugins:
 | Cop | Default | Description |
 |-----|---------|-------------|
 | `Harness/ControllerMethodLength` | Max: 10 | Controllers should be thin. Extract long methods into service objects. |
-| `Harness/ModelMethodLength` | Max: 7 | Long model methods should be decomposed into smaller methods, concerns, or value objects. |
+| `Harness/ModelMethodLength` | Max: 7 | Models own domain logic, but methods should be small. Decompose into smaller methods, concerns, or value objects. |
 | `Harness/RestfulActions` | Enabled | Controllers should only define the 7 RESTful actions (index, show, new, create, edit, update, destroy). |
 | `Harness/ServiceInterface` | Enabled | Service objects must define a `call` or `save` instance method. |
 | `Harness/NoQueriesInControllers` | Enabled | No ActiveRecord query methods in controllers. Move to model scopes or query objects. `find` and `find_by` allowed by default. |
@@ -155,17 +155,22 @@ end
 
 ### Harness/NoQueriesInControllers
 
-Flags ActiveRecord query methods (`where`, `joins`, `includes`, `order`, `pluck`, `destroy_all`, etc.) in controller files.
+Flags ActiveRecord query methods (`where`, `joins`, `includes`, `order`, `pluck`, `destroy_all`, etc.) in controller files. Controllers are the presentation layer — query construction belongs in the domain layer (model scopes) or application layer (services).
 
 ```ruby
-# bad
+# bad — query building in the controller
 def index
   @users = User.where(active: true).order(:name)
 end
 
-# good – use model scopes
+# good — model scope (preferred for simple filtering/ordering)
 def index
   @users = User.active.ordered_by_name
+end
+
+# good — service object (for multi-model orchestration or side effects)
+def index
+  @users = ListUsersService.new(filters: params[:filters]).call
 end
 ```
 
@@ -173,7 +178,13 @@ end
 
 ## Design Philosophy
 
-These cops enforce **architectural boundaries**, not style preferences. They fill gaps that rubocop-shopify and rubocop-rails don't cover:
+These cops enforce **layered architecture boundaries**, not style preferences. Inspired by [Layered Design for Ruby on Rails Applications](https://www.packtpub.com/en-us/product/layered-design-for-ruby-on-rails-applications-9781801813785) (Dementyev, 2023), they ensure code stays in the right layer:
+
+- **Presentation layer** (controllers/views): request handling only — no query building, no business logic
+- **Application layer** (services): orchestration across models, external integrations, side effects
+- **Domain layer** (models): business rules, validations, scopes, state transitions
+
+These cops fill gaps that rubocop-shopify and rubocop-rails don't cover:
 
 - rubocop-shopify **disables** all Metrics cops. rubocop-harness applies different limits per architectural layer.
 - rubocop-rails enforces action **ordering** (`Rails/ActionOrder`). rubocop-harness enforces that only RESTful actions **exist**.
