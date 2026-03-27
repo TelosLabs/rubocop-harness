@@ -50,6 +50,8 @@ plugins:
 | `Harness/RestfulActions` | Enabled | Controllers should only define the 7 RESTful actions (index, show, new, create, edit, update, destroy). |
 | `Harness/ServiceInterface` | Enabled | Service objects must define a `call` or `save` instance method. |
 | `Harness/NoQueriesInControllers` | Enabled | No ActiveRecord query methods in controllers. Move to model scopes or query objects. `find` and `find_by` allowed by default. |
+| `Harness/JobMethodLength` | Max: 7 | Jobs should be thin. Delegate to a service object. |
+| `Harness/NoPresentationInModels` | Enabled | No presentation logic (HTML, route helpers) in models. Move to presenters or view helpers. |
 
 All cops are enabled by default with `warning` severity.
 
@@ -175,6 +177,53 @@ end
 ```
 
 `find` and `find_by` are allowed by default since `@resource = Model.find(params[:id])` is a standard Rails pattern. Set `AllowedMethods: []` to flag them too.
+
+### Harness/JobMethodLength
+
+Enforces a maximum method length in `app/jobs/`. Jobs should delegate to services, not contain business logic.
+
+```ruby
+# bad - business logic in the job
+def perform(user_id)
+  user = User.find(user_id)
+  user.update!(onboarded: true)
+  WelcomeMailer.with(user: user).welcome.deliver_later
+  Analytics.track("user_onboarded", user_id: user.id)
+  user.projects.create!(name: "My First Project")
+  Slack::NotifyChannel.call("#signups", "New user: #{user.email}")
+  AuditLog.record(:onboard, user: user)
+  user.update!(onboarded_at: Time.current)
+end
+
+# good - delegate to a service
+def perform(user_id)
+  user = User.find(user_id)
+  OnboardUserService.new(user).call
+end
+```
+
+### Harness/NoPresentationInModels
+
+Flags presentation logic in models — HTML generation, route helpers, and ActionController helpers belong in presenters, decorators, or view helpers, not in the domain layer.
+
+```ruby
+# bad - HTML in the model
+def badge
+  content_tag(:span, role_name, class: "badge")
+end
+
+# bad - route helpers in the model
+class User < ApplicationRecord
+  include Rails.application.routes.url_helpers
+end
+
+# good - use a presenter
+class UserPresenter
+  def badge
+    content_tag(:span, user.role_name, class: "badge")
+  end
+end
+```
 
 ## Design Philosophy
 
