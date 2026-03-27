@@ -70,3 +70,30 @@ Harness/NoQueriesInControllers:
     - '**/app/controllers/**/*.rb'
   Exclude:
     - '**/app/controllers/concerns/**/*.rb'
+
+Harness/JobMethodLength:
+  Description: >-
+    Enforces a maximum method length in jobs. Jobs should be thin and
+    delegate to service objects.
+  Enabled: true
+  Severity: warning
+  VersionAdded: '0.3'
+  Max: 7
+  AllowedMethods: []
+  Include:
+    - '**/app/jobs/**/*.rb'
+  Exclude:
+    - '**/app/jobs/application_job.rb'
+
+Harness/NoPresentationInModels:
+  Description: >-
+    Models should not contain presentation logic. Move HTML generation,
+    route helpers, and view-layer methods to presenters or view helpers.
+  Enabled: true
+  Severity: warning
+  VersionAdded: '0.3'
+  AllowedMethods: []
+  Include:
+    - '**/app/models/**/*.rb'
+  Exclude:
+    - '**/app/models/concerns/**/*.rb'
