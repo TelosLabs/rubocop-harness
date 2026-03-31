@@ -3,19 +3,19 @@
 RSpec.describe RuboCop::Cop::Harness::NoPresentationInModels, :config do
   let(:config) do
     RuboCop::Config.new(
-      "Harness/NoPresentationInModels" => {
-        "Enabled" => true,
-        "AllowedMethods" => [],
-        "Include" => ["**/app/models/**/*.rb"],
-        "Exclude" => ["**/app/models/concerns/**/*.rb"],
+      'Harness/NoPresentationInModels' => {
+        'Enabled' => true,
+        'AllowedMethods' => [],
+        'Include' => ['**/app/models/**/*.rb'],
+        'Exclude' => ['**/app/models/concerns/**/*.rb']
       }
     )
   end
 
-  let(:source_file) { "app/models/user.rb" }
+  let(:source_file) { 'app/models/user.rb' }
 
-  context "with HTML generation methods" do
-    it "registers an offense for content_tag" do
+  context 'with HTML generation methods' do
+    it 'registers an offense for content_tag' do
       expect_offense(<<~RUBY, source_file)
         def badge
           content_tag(:span, role_name, class: "badge")
@@ -24,7 +24,7 @@ RSpec.describe RuboCop::Cop::Harness::NoPresentationInModels, :config do
       RUBY
     end
 
-    it "registers an offense for link_to" do
+    it 'registers an offense for link_to' do
       expect_offense(<<~RUBY, source_file)
         def profile_link
           link_to(name, "/users/\#{id}")
@@ -33,7 +33,7 @@ RSpec.describe RuboCop::Cop::Harness::NoPresentationInModels, :config do
       RUBY
     end
 
-    it "registers an offense for sanitize" do
+    it 'registers an offense for sanitize' do
       expect_offense(<<~RUBY, source_file)
         def clean_bio
           sanitize(bio)
@@ -43,8 +43,8 @@ RSpec.describe RuboCop::Cop::Harness::NoPresentationInModels, :config do
     end
   end
 
-  context "with route helpers include" do
-    it "registers an offense for including url_helpers" do
+  context 'with route helpers include' do
+    it 'registers an offense for including url_helpers' do
       expect_offense(<<~RUBY, source_file)
         class User < ApplicationRecord
           include Rails.application.routes.url_helpers
@@ -54,8 +54,8 @@ RSpec.describe RuboCop::Cop::Harness::NoPresentationInModels, :config do
     end
   end
 
-  context "with ActionController::Base.helpers" do
-    it "registers an offense for helpers usage" do
+  context 'with ActionController::Base.helpers' do
+    it 'registers an offense for helpers usage' do
       expect_offense(<<~RUBY, source_file)
         def formatted_price
           ActionController::Base.helpers.number_to_currency(price)
@@ -65,8 +65,32 @@ RSpec.describe RuboCop::Cop::Harness::NoPresentationInModels, :config do
     end
   end
 
-  context "with legitimate model methods" do
-    it "does not flag to_s" do
+  context 'with legitimate model methods' do
+    it 'does not flag receiver sanitize calls' do
+      expect_no_offenses(<<~RUBY, source_file)
+        def clean_bio
+          MarkdownSanitizer.sanitize(bio)
+        end
+      RUBY
+    end
+
+    it 'does not flag receiver content_tag calls' do
+      expect_no_offenses(<<~RUBY, source_file)
+        def badge
+          builder.content_tag(:span, role_name, class: "badge")
+        end
+      RUBY
+    end
+
+    it 'does not flag receiver link_to calls' do
+      expect_no_offenses(<<~'RUBY', source_file)
+        def profile_link
+          formatter.link_to(name, "/users/#{id}")
+        end
+      RUBY
+    end
+
+    it 'does not flag to_s' do
       expect_no_offenses(<<~'RUBY', source_file)
         def to_s
           "#{first_name} #{last_name}"
@@ -74,7 +98,7 @@ RSpec.describe RuboCop::Cop::Harness::NoPresentationInModels, :config do
       RUBY
     end
 
-    it "does not flag display_name" do
+    it 'does not flag display_name' do
       expect_no_offenses(<<~'RUBY', source_file)
         def display_name
           "#{first_name} #{last_name}"
@@ -82,7 +106,7 @@ RSpec.describe RuboCop::Cop::Harness::NoPresentationInModels, :config do
       RUBY
     end
 
-    it "does not flag to_param" do
+    it 'does not flag to_param' do
       expect_no_offenses(<<~RUBY, source_file)
         def to_param
           slug
@@ -90,7 +114,7 @@ RSpec.describe RuboCop::Cop::Harness::NoPresentationInModels, :config do
       RUBY
     end
 
-    it "does not flag avatar_url" do
+    it 'does not flag avatar_url' do
       expect_no_offenses(<<~'RUBY', source_file)
         def avatar_url
           "https://example.com/avatars/#{id}.png"
@@ -98,7 +122,7 @@ RSpec.describe RuboCop::Cop::Harness::NoPresentationInModels, :config do
       RUBY
     end
 
-    it "does not flag file_path" do
+    it 'does not flag file_path' do
       expect_no_offenses(<<~RUBY, source_file)
         def file_path
           Rails.root.join("uploads", filename)
@@ -107,9 +131,9 @@ RSpec.describe RuboCop::Cop::Harness::NoPresentationInModels, :config do
     end
   end
 
-  context "when in a concern file" do
-    it "does not register an offense" do
-      expect_no_offenses(<<~RUBY, "app/models/concerns/displayable.rb")
+  context 'when in a concern file' do
+    it 'does not register an offense' do
+      expect_no_offenses(<<~RUBY, 'app/models/concerns/displayable.rb')
         def badge
           content_tag(:span, role_name, class: "badge")
         end
@@ -117,17 +141,17 @@ RSpec.describe RuboCop::Cop::Harness::NoPresentationInModels, :config do
     end
   end
 
-  context "when in a non-model file" do
-    it "does not register an offense in a controller" do
-      expect_no_offenses(<<~RUBY, "app/controllers/users_controller.rb")
+  context 'when in a non-model file' do
+    it 'does not register an offense in a controller' do
+      expect_no_offenses(<<~RUBY, 'app/controllers/users_controller.rb')
         def badge
           content_tag(:span, "admin", class: "badge")
         end
       RUBY
     end
 
-    it "does not register an offense in a helper" do
-      expect_no_offenses(<<~RUBY, "app/helpers/users_helper.rb")
+    it 'does not register an offense in a helper' do
+      expect_no_offenses(<<~RUBY, 'app/helpers/users_helper.rb')
         def user_badge(user)
           content_tag(:span, user.role_name, class: "badge")
         end
@@ -135,19 +159,19 @@ RSpec.describe RuboCop::Cop::Harness::NoPresentationInModels, :config do
     end
   end
 
-  context "with AllowedMethods" do
+  context 'with AllowedMethods' do
     let(:config) do
       RuboCop::Config.new(
-        "Harness/NoPresentationInModels" => {
-          "Enabled" => true,
-          "AllowedMethods" => %w[content_tag],
-          "Include" => ["**/app/models/**/*.rb"],
-          "Exclude" => ["**/app/models/concerns/**/*.rb"],
+        'Harness/NoPresentationInModels' => {
+          'Enabled' => true,
+          'AllowedMethods' => %w[content_tag],
+          'Include' => ['**/app/models/**/*.rb'],
+          'Exclude' => ['**/app/models/concerns/**/*.rb']
         }
       )
     end
 
-    it "does not register an offense for allowed methods" do
+    it 'does not register an offense for allowed methods' do
       expect_no_offenses(<<~RUBY, source_file)
         def badge
           content_tag(:span, role_name, class: "badge")
@@ -155,7 +179,7 @@ RSpec.describe RuboCop::Cop::Harness::NoPresentationInModels, :config do
       RUBY
     end
 
-    it "still flags non-allowed methods" do
+    it 'still flags non-allowed methods' do
       expect_offense(<<~RUBY, source_file)
         def profile_link
           link_to(name, "/users/\#{id}")

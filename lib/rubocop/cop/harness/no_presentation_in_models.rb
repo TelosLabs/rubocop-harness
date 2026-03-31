@@ -41,11 +41,11 @@ module RuboCop
 
         # @!method url_helpers_include?(node)
         def_node_matcher :url_helpers_include?,
-          '(send nil? :include (send (send (send (const nil? :Rails) :application) :routes) :url_helpers))'
+                         '(send nil? :include (send (send (send (const nil? :Rails) :application) :routes) :url_helpers))'
 
         # @!method action_controller_helpers_call?(node)
         def_node_matcher :action_controller_helpers_call?,
-          '(send (send (const (const nil? :ActionController) :Base) :helpers) _ ...)'
+                         '(send (send (const (const nil? :ActionController) :Base) :helpers) _ ...)'
 
         def on_send(node)
           check_presentation_methods(node)
@@ -57,6 +57,7 @@ module RuboCop
 
         def check_presentation_methods(node)
           return unless PRESENTATION_METHODS.include?(node.method_name)
+          return unless node.receiver.nil?
           return if allowed_method?(node.method_name)
 
           add_offense(
