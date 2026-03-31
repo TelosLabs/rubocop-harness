@@ -1,6 +1,19 @@
 # Changelog
 
-## 0.1.0 (Unreleased)
+## 0.3.0
+
+### New cops
+
+- `Harness/JobMethodLength` - Enforces maximum method length in jobs. Jobs should be thin and delegate to service objects.
+- `Harness/NoPresentationInModels` - Flags presentation logic (HTML generation, route helpers, ActionController helpers) in models.
+
+## 0.2.0
+
+### Changed
+
+- Aligned cop messaging with layered design principles. Model cops no longer suggest extracting to services; query cops suggest model scopes first.
+
+## 0.1.0
 
 ### New cops
 
