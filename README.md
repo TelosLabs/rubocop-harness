@@ -52,6 +52,7 @@ plugins:
 | `Harness/NoQueriesInControllers` | Enabled | No ActiveRecord query methods in controllers. Move to model scopes or query objects. `find` and `find_by` allowed by default. |
 | `Harness/JobMethodLength` | Max: 7 | Jobs should be thin. Delegate to a service object. |
 | `Harness/NoPresentationInModels` | Enabled | No presentation logic (HTML, route helpers) in models. Move to presenters or view helpers. |
+| `Harness/NoBareRescue` | Enabled | No blanket rescue (`rescue`, `rescue => e`, `rescue StandardError`) as the sole handler. Rescue a specific error class. Blanket backstops after a specific clause are allowed. |
 
 All cops are enabled by default with `warning` severity.
 
@@ -224,6 +225,43 @@ class UserPresenter
   end
 end
 ```
+
+### Harness/NoBareRescue
+
+Flags a blanket rescue that is the only handler for a block. A class-less `rescue` / `rescue => e`, or an explicit `rescue StandardError`/`rescue Exception`, catches the entire error tree and hides the specific failure the code should handle.
+
+```ruby
+# bad - sole blanket handler, hides what actually failed
+def load_dashboard_experiment
+  load_challenge_tile
+rescue => e
+  Rollbar.error(e)
+  @dashboard_assignment = nil
+end
+
+# good - rescue the specific error you expect
+def load_dashboard_experiment
+  load_challenge_tile
+rescue Dashboards::ExperimentError => e
+  Rollbar.error(e)
+  @dashboard_assignment = nil
+end
+```
+
+A blanket rescue is allowed as a **backstop** after a specific clause: the specific clause handles known failures meaningfully, the blanket clause reports the unexpected ones.
+
+```ruby
+# good - specific handling plus a reporting backstop
+def call_api
+  client.get(url)
+rescue Faraday::Error => e
+  retry_later(e)
+rescue => e
+  Rollbar.error(e)
+end
+```
+
+Runs on `app/**/*.rb` and `lib/**/*.rb` by default. Top-level boundaries that legitimately need a lone `rescue StandardError` (some jobs, rake tasks, middleware) should use an inline `# rubocop:disable Harness/NoBareRescue` or an `Exclude` glob, making the blanket rescue a deliberate, visible choice.
 
 ## Design Philosophy
 
