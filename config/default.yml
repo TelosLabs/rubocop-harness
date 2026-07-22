@@ -97,3 +97,16 @@ Harness/NoPresentationInModels:
     - '**/app/models/**/*.rb'
   Exclude:
     - '**/app/models/concerns/**/*.rb'
+
+Harness/NoBareRescue:
+  Description: >-
+    Blanket rescues (class-less `rescue`, `rescue => e`, or explicit
+    `rescue StandardError`/`Exception`) hide the specific failure that
+    should be handled. Rescue a specific error class. A blanket rescue is
+    allowed only as a backstop after a specific rescue clause.
+  Enabled: true
+  Severity: warning
+  VersionAdded: '0.4'
+  Include:
+    - '**/app/**/*.rb'
+    - '**/lib/**/*.rb'

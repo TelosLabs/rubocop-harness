@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.0
+
+### New cops
+
+- `Harness/NoBareRescue` - Flags blanket rescues (class-less `rescue`, `rescue => e`, or explicit `rescue StandardError`/`Exception`) that are the sole handler for a block. A blanket rescue is allowed as a backstop after a specific rescue clause.
+
 ## 0.3.0
 
 ### New cops
